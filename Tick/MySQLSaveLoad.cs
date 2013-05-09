@@ -31,8 +31,8 @@ namespace Tick
             try
             {
                 _mySqlCon = new MySqlConnection(cs);
-                _mySqlCon.Open();
-                _logger.Log("MySQL version : "+  _mySqlCon.ServerVersion);
+                //_mySqlCon.Open();
+                //_logger.Log("MySQL version : "+  _mySqlCon.ServerVersion);
 
             }
             catch (MySqlException ex)

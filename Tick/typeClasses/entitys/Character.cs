@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Tick.messages;
 
 namespace Tick.typeClasses
 {
@@ -11,6 +12,7 @@ namespace Tick.typeClasses
         public String Name { get; set; }
         public float Str { get; set; }
         public float Hp { get; set; }
+        public float CurHp { get; set; }
         public float Intel { get; set; }
         public float Agi { get; set; }
         public float Spd { get; set; }
@@ -29,22 +31,25 @@ namespace Tick.typeClasses
             Intel = intel;
             Agi = agi;
             Spd = spd;
+            CurHp = Hp;
         }
 
 
 
         public void takeDamage(float dam){
-            Hp = Math.Max(0, Hp - dam);
+            CurHp = Math.Max(0, CurHp - dam);
+            _logger.Log(new StatusMessage(this));
         }
 
         public bool isAlive(){ 
-            return Hp <= 0 ? false: true;
+            return CurHp <= 0 ? false: true;
         }
         
         public void doCombatTick()
         {
             Combat.getOpponents(this).First().takeDamage(Str);
             _logger.Log(String.Format("{0} did {1} damage to {2}", Name, Str, Combat.getOpponents(this).First().Name));
+            _logger.Log(new StatusMessage(this));
         }
 
         public new void StartSave()

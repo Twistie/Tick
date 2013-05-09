@@ -9,13 +9,14 @@ namespace Tick.typeClasses
     {
         private Character _fightA { get; set; }
         private Character _fightB { get; set; }
-        private bool _isFinished = false;
+        private bool _isFinished;
 
         public Normal1v1(ILogger logger, Character a, Character b)
         {
             _fightA = a;
             _fightB = b;
             _logger = logger;
+            _isFinished = false;
         }
 
         public override List<Character> getOpponents(Character c)
@@ -52,7 +53,6 @@ namespace Tick.typeClasses
                 _isFinished = true;
                 _logger.Log(String.Format("{0} just died in combat with {1}", _fightB.Name, _fightA.Name));
             }
-            
         }
 
          public override bool IsFinished()

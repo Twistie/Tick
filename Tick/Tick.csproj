@@ -13,6 +13,8 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -34,8 +36,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Alchemy">
+      <HintPath>..\packages\Alchemy.2.2.1\lib\net40\Alchemy.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.5.0.0\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Fleck">
+      <HintPath>..\packages\Fleck.0.9.6.19\lib\net40\Fleck.dll</HintPath>
     </Reference>
     <Reference Include="mysql.data, Version=6.6.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -53,9 +61,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>thirdparty\mysql.web.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.4\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Ninject, Version=3.0.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>thirdparty\Ninject.dll</HintPath>
+      <HintPath>..\packages\Ninject.3.0.1.10\lib\net40\Ninject.dll</HintPath>
     </Reference>
     <Reference Include="NuGet.Core, Version=2.2.31210.9045, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -75,8 +86,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FleckLogger.cs" />
+    <Compile Include="homes\Cube.cs" />
+    <Compile Include="homes\Home.cs" />
+    <Compile Include="homes\IBase.cs" />
     <Compile Include="factorys\AreaFact.cs" />
     <Compile Include="factorys\MobFact.cs" />
+    <Compile Include="homes\ICube.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="IO\testUI\Map.cs">
       <SubType>Form</SubType>
@@ -86,6 +102,9 @@
     </Compile>
     <Compile Include="IO\ITickIO.cs" />
     <Compile Include="ISaveLoad.cs" />
+    <Compile Include="messages\IMessage.cs" />
+    <Compile Include="messages\MoveMessage.cs" />
+    <Compile Include="messages\StatusMessage.cs" />
     <Compile Include="MySQLSaveLoad.cs" />
     <Compile Include="typeClasses\actions\Action.cs" />
     <Compile Include="typeClasses\actions\Idle.cs" />
@@ -141,6 +160,7 @@
     <Folder Include="thirdparty\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

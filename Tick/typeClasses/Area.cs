@@ -13,7 +13,7 @@ namespace Tick.typeClasses
         public float TravelTime { get; set; }
         private LinkedList<ICombat> _combatList;
         private LinkedList<MobFact> MobFacts;
-        private LinkedList<Entity> _entHere;
+        private List<Entity> _entHere;
         public int X { get; set; }
         public int Y { get; set; }
         private ISaveLoad _saveLoad;
@@ -26,7 +26,7 @@ namespace Tick.typeClasses
             _saveLoad = saveLoad;
             _inject = inject;
             Random rand = new Random();
-            _entHere = new LinkedList<Entity>();
+            _entHere = new List<Entity>();
             _combatList = new LinkedList<ICombat>();
             X = x;
             Y = y;
@@ -72,23 +72,24 @@ namespace Tick.typeClasses
         }
         public void AddEntity( Entity e )
         {
-            _entHere.AddLast(e);
+            _entHere.Add(e);
         }
 
         public void DoTick()
         {
-            foreach (Entity ent in _entHere)
+            for(int i = 0; i < _entHere.Count ;i ++)
             {
-                if (IsFight(ent))
+                Entity ent = _entHere[i];
+                if (!ent._char.IsInCombat)
                 {
-                    if (!ent._char.IsInCombat)
+                    if (IsFight(ent))
                     {
                         _logger.Log(String.Format("{0} just got into a fight!!", ent._char.Name));
                         Mob m = MobFacts.First.Value.CreateMob();
-                        ICombat i = new Normal1v1(_logger, ent._char, m);
-                        m.Combat = i;
-                        ent._char.Combat = i;
-                        _combatList.AddLast(i);
+                        ICombat comb = new Normal1v1(_logger, ent._char, m);
+                        m.Combat = comb;
+                        ent._char.JoinCombat(comb);
+                        _combatList.AddLast(comb);
                     }
                 }
             }
@@ -103,6 +104,7 @@ namespace Tick.typeClasses
                 else
                 {
                     c.DoTick();
+
                 }
             }
             foreach (ICombat c in toRemove)

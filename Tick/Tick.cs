@@ -15,40 +15,43 @@ using Tick.IO.testUI;
 using Tick.factorys;
 using Tick.typeClasses;
 using Ninject;
+using System.Threading;
 
 namespace Tick
 {   
     
-    public partial class Tick : Form, ILogger
+    public partial class Tick : Form
     {
         internal NormalWorld World;
         private LinkedList<Entity> _entList;
         private readonly StandardKernel _inject;
         private ISaveLoad _saveEngine;
+        private ILogger _logger;
         public Tick()
         {
             _inject = new StandardKernel();
-            
+            this.Show();
             _entList = new LinkedList<Entity>();
             InitializeComponent();
+            _logger = new FleckLogger();
+            _saveEngine = new MySQLSaveLoad(_logger);
             PrepareInject();
-            _saveEngine = _inject.Get<MySQLSaveLoad>();
+            
             GenAreas();
         }
         private void PrepareInject()
         {
-            _inject.Bind<ILogger>().ToConstant(this);
+            _inject.Bind<ILogger>().ToConstant(_logger);
             _inject.Bind<StandardKernel>().ToConstant(_inject);
 
-            _inject.Bind<ISaveLoad>().ToConstant(_inject.Get<MySQLSaveLoad>());
+            _inject.Bind<ISaveLoad>().ToConstant(_saveEngine);
         }
         public void DoTick()
         {
-            foreach (var ent in _entList)
+            foreach (Entity ent in _entList)
             {
                 ent.DoTick();
             }
-
             World.DoTick();
         }
 
@@ -105,8 +108,12 @@ namespace Tick
 
         private void TickButton_Click(object sender, EventArgs e)
         {
-            DoTick();
-            AddText("Tick Complete");
+            while (true)
+            {
+                DoTick();
+                AddText("Tick Complete");
+                Thread.Sleep(1500);
+            }
         }
 
         public void saveState()
@@ -150,5 +157,6 @@ namespace Tick
         {
 
         }
+
     }
 }
