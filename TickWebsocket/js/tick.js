@@ -12,8 +12,15 @@ factories.position = function( x, y ) {
     }
     return position;
 }
+factories.htmlImageString = function( imageString ) {
+	var 
+} 
 factories.tile = function( x, y ) {
-
+	var ret = new Object();
+	var position  = factories.position( x,y );
+	getGraphic = function() {
+		
+	}
 }
 
 function init() {

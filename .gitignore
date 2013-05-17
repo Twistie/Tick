@@ -19,6 +19,9 @@
 # nuget
 packages/
 
+#metadata
+.[mM]etadata/
+.[Pp]roject
 
 #resharper
 _ReSharper*
