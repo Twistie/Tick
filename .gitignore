@@ -19,9 +19,12 @@
 # nuget
 packages/
 
+
 #resharper
 _ReSharper*
 
 # other
 *.[Cc]ache
 
+#Webstorm
+TickWebsocket/.idea

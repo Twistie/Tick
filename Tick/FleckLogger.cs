@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Fleck;
+using Newtonsoft.Json;
 using Tick.messages;
 
 namespace Tick
@@ -28,6 +29,14 @@ namespace Tick
                 {
                     foreach (var s in allSockets.ToList())
                         s.Send(message);
+                    try
+                    {
+                        incomingMessage i = JsonConvert.DeserializeObject<incomingMessage>(message, new JsonSerializerSettings());
+                    }
+                    catch (Exception e)
+                    {
+                        Log(e.ToString());
+                    }
                 };
             });
             
@@ -51,6 +60,11 @@ namespace Tick
         public void Log( IMessage m ) {
             string s = m.getJsonString();
             Log(m.getJsonString());
+        }
+
+        public class incomingMessage {
+            public string type;
+            public string[] args;
         }
     }
 }

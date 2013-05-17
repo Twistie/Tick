@@ -4,15 +4,23 @@ var resourceLib = {
 }
 var mapDiv = document.getElementById('map');
 var tiles = [];
+var factories = {}
+factories.position = function( x, y ) {
+    var position = {
+        x: x,
+        y: y
+    }
+    return position;
+}
+factories.tile = function( x, y ) {
+
+}
 
 function init() {
     for( var x = 0; x < 20; x ++ ) {
         tiles[x] = [];
         for( var y = 0; y < 20; y ++ ) {
-            var newPosition = {
-                x: x,
-                y: y
-            }
+            var newPosition = factories.position(x, y);
             var newGraphic = {
                 imgString: "<img  class='mapImg' src=" + resourceLib.grass + "/>"
             }
@@ -77,7 +85,6 @@ if ("WebSocket" in window) {
     ws = new WebSocket("ws://123.243.99.188:8081/");
     ws.onopen = function() {
         // Web Socket is connected. You can send data by send() method.
-        ws.send("test1");
     };
     ws.onmessage = function (evt) {
         var received_msg = evt.data;
