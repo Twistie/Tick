@@ -124,6 +124,7 @@
     <Compile Include="typeClasses\IWorld.cs" />
     <Compile Include="typeClasses\entitys\Mob.cs" />
     <Compile Include="typeClasses\combat\Normal1v1.cs" />
+    <Compile Include="typeClasses\objectives\MoveLoop.cs" />
     <Compile Include="typeClasses\objectives\Wander.cs" />
     <Compile Include="typeClasses\objectives\Idle.cs" />
     <Compile Include="typeClasses\objectives\Move.cs" />

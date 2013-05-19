@@ -16,12 +16,13 @@ namespace Tick.typeClasses
         public float Intel { get; set; }
         public float Agi { get; set; }
         public float Spd { get; set; }
+        public int Id { get; set; }
         public ICombat Combat { get; set; }
         public Boolean IsInCombat { get; set; }
         protected ISaveLoad SaveLoad;
         protected ILogger _logger;
 
-        public Character(ISaveLoad saveLoad, ILogger logger, string name, float str, float hp, float intel, float agi, float spd)
+        public Character(ISaveLoad saveLoad, ILogger logger, string name, float str, float hp, float intel, float agi, float spd, int id)
         {
             _logger = logger;
             SaveLoad = saveLoad;
@@ -32,6 +33,7 @@ namespace Tick.typeClasses
             Agi = agi;
             Spd = spd;
             CurHp = Hp;
+            Id = id;
         }
 
 
@@ -66,11 +68,18 @@ namespace Tick.typeClasses
         {
             IsInCombat = true;
             Combat = c;
+
+            StatusMessage stat = new StatusMessage(this);
+            _logger.Log(stat.getJsonString());
         }
         public void LeaveCombat()
         {
+
             Combat = null;
             IsInCombat = false;
+
+            StatusMessage stat = new StatusMessage(this);
+            _logger.Log(stat.getJsonString());
         }
     }
 }

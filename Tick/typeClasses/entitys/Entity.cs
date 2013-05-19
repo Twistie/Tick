@@ -19,14 +19,15 @@ namespace Tick.typeClasses
         protected ISaveLoad SaveLoad;
         private ILogger _logger;
         public Character _char  { get; set; }
-        public Entity(Area l, ILogger logger, ISaveLoad saveLoad)
+        public Entity(Area l, ILogger logger, ISaveLoad saveLoad, int id)
         {
+            ID = id;
             _logger = logger;
             SaveLoad = saveLoad;
             Location = l;
             CurObjective = new objectives.Idle(this);
             CurAction = CurObjective.GetAction();
-            _char = new Character(saveLoad, logger, "Ted", 20, 200, 20, 20, 20);
+            _char = new Character(saveLoad, logger, "Ted", 20, 200, 20, 20, 20, this.ID);
         }
 
         public void DoTick()

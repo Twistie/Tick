@@ -15,8 +15,9 @@ namespace Tick.typeClasses.objectives
 
         public override Action GetAction()
         {
-            return new actions.Idle( Owner );
+
             Complete = true;
+            return new actions.Idle( Owner );
         }
       
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Ninject;
 using Tick.factorys;
+using Tick.messages;
 
 
 namespace Tick.typeClasses

@@ -22,7 +22,6 @@ namespace Tick.messages
         }
         public string getJsonString()
         {
-            string s = JsonConvert.SerializeObject(this);
             return JsonConvert.SerializeObject(this);
         }
     }

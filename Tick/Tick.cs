@@ -27,23 +27,31 @@ namespace Tick
         private readonly StandardKernel _inject;
         private ISaveLoad _saveEngine;
         private ILogger _logger;
+        public int idGen = 0;
         public Tick()
         {
             _inject = new StandardKernel();
             this.Show();
             _entList = new LinkedList<Entity>();
             InitializeComponent();
-            _logger = new FleckLogger();
+
+            _logger = new FleckLogger(_entList);
             _saveEngine = new MySQLSaveLoad(_logger);
             PrepareInject();
-            
+
             GenAreas();
+            ((FleckLogger)_logger).setWorld(World);
+        }
+        public int getId()
+        {
+            idGen++;
+            return idGen;
         }
         private void PrepareInject()
         {
+            _inject.Bind<LinkedList<Entity>>().ToConstant(_entList);
             _inject.Bind<ILogger>().ToConstant(_logger);
             _inject.Bind<StandardKernel>().ToConstant(_inject);
-
             _inject.Bind<ISaveLoad>().ToConstant(_saveEngine);
         }
         public void DoTick()
@@ -95,7 +103,7 @@ namespace Tick
 
         private void TestButton1_Click(object sender, EventArgs e)
         {
-            _entList.AddFirst(_inject.Get<Entity>(new ConstructorArgument("l", World.GetArea(0,0))));
+            _entList.AddFirst(_inject.Get<Entity>(new ConstructorArgument("id", getId()), new ConstructorArgument("l", World.GetArea(0,0))));
             World.GetArea(0, 0).AddEntity(_entList.First.Value );
             AddText("Entity Added");
         }

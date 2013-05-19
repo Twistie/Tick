@@ -6,7 +6,7 @@ using Tick;
 namespace Tick.typeClasses
 {
     [Serializable]
-    class NormalWorld : IWorld
+    public class NormalWorld : IWorld
     {
         private readonly ILogger _logger;
         private StandardKernel _inject;

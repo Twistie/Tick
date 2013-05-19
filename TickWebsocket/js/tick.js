@@ -1,10 +1,17 @@
 var resourceLib = {
     grass: "'img/grass.png'",
-    trent: "'img/trent.png'"
+    trent: "'img/trent.png'",
+    fight: "'img/fight.png'"
 }
 var mapDiv = document.getElementById('map');
+var controlDiv = document.getElementById('controls');
 var tiles = [];
-var factories = {}
+var factories = {};
+var selectedEntity = null;
+var entities = new Object();
+var status = "init";
+var routeList = [];
+
 factories.position = function( x, y ) {
     var position = {
         x: x,
@@ -12,42 +19,89 @@ factories.position = function( x, y ) {
     }
     return position;
 }
+factories.entity = function( id, stats ) {
+	var entity = new Object();
+	
+	entity.id = id;
+	entity.stats = stats;
+	return entity;
+}
 factories.htmlImageString = function( imageString ) {
-	var 
+	return "<img  class='mapImg' src=" + imageString + "/>";
 } 
 factories.tile = function( x, y ) {
-	var ret = new Object();
-	var position  = factories.position( x,y );
-	getGraphic = function() {
-		
+	var tile = new Object();
+	tile.position  = factories.position( x,y );
+	tile.entities = [];
+	tile.getGraphic = function() {
+		return this.getBackgroundString() + this.getOverlayString();
 	}
+	var bgString = factories.htmlImageString( resourceLib.grass );
+	
+	tile.getBackgroundString = function() {
+		return bgString;
+	}
+	tile.getOverlayString = function() {
+		if( this.entities.length > 0 ) {
+			if( !entities[this.entities[0].id].stats.IsInCombat ) {
+				return factories.htmlImageString( resourceLib.trent );
+			}else {
+				return factories.htmlImageString( resourceLib.fight );
+			}
+		}
+		return "";
+	}
+	tile.position = factories.position(x,y);
+	tile.onclick = function( e ) { 
+		console.log( this.tile.position.x + " : " + this.tile.position.y );
+		if( status == "recordRoute" ) {
+			addRouteLocation( this.tile.position.x, this.tile.position.y );
+			return;
+		}
+		if( this.tile.entities.length > 0)
+		{
+			selectedEntity = entities[this.tile.entities[0].Id];
+			updateStatus( selectedEntity );
+			controlDiv.innerHTML = "<input type='button' value='Start Route' onclick='startRoute()'/>";
+		}
+	}
+	return tile;
+}
+function addRouteLocation(x, y) {
+	var newloc = x + ":" +y;
+	routeList.push(newloc);
+	var html = "<H3>Click on the map to make a route</H3> <BR/><input type='button' value='Commit' onclick='resetRoute()'><BR> Route so far <BR> <OL>"
+	for( var i in routeList ) {
+		html += "<LI>"+routeList[i]+"</LI>";
+	}
+	html += "</OL>";
+	controlDiv.innerHTML = html;
+}
+function resetRoute() {
+	var msg = new Object();
+	msg.args = new Object();
+	msg.args.moveList = routeList.toString();
+	msg.args.Id = selectedEntity.id;
+	msg.type = "moveRoute";
+	ws.send( JSON.stringify(msg));
+	controlDiv.innerHTML = "<input type='button' value='Start Route' onclick='startRoute()'/>";
+}
+function startRoute() {
+	status = "recordRoute";
+	routeList = [];
+	controlDiv.innerHTML = "<H3>Click on the map to make a route</H3><BR/><input type='button' value='Reset' onclick='resetRoute()'>";
 }
 
 function init() {
     for( var x = 0; x < 20; x ++ ) {
         tiles[x] = [];
         for( var y = 0; y < 20; y ++ ) {
-            var newPosition = factories.position(x, y);
-            var newGraphic = {
-                imgString: "<img  class='mapImg' src=" + resourceLib.grass + "/>"
-            }
-
-            var newOverlay = {
-                graphicString: function() {
-                    return "";
-                }
-            }
-            var newTile = {
-                position: newPosition,
-                graphic: newGraphic,
-                overlay: newOverlay,
-                entities: []
-            }
-            tiles[x][y] = newTile;
+            tiles[x][y] = factories.tile(x,y);
         }
     }
+    status = "1"
 }
-
+init();
 function drawTiles() {
     mapDiv.innerHTML = "";
 
@@ -55,37 +109,69 @@ function drawTiles() {
         for( var y = 0; y < 20; y ++ ) {
             var newDiv = document.createElement("div");
 
-            newDiv.innerHTML = tiles[x][y].graphic.imgString + tiles[x][y].overlay.graphicString();
+            newDiv.innerHTML = tiles[x][y].getGraphic();
             newDiv.style.position = 'absolute';
             newDiv.style.top = (y*32) + "px";
             newDiv.style.left = (x*32) + "px";
+            newDiv.tile =  tiles[x][y];
 
             mapDiv.appendChild( newDiv );
+            newDiv.onclick = tiles[x][y].onclick;
         }
     }
 }
 function drawTrent() {
     return "<img class='mapImg' src=" + resourceLib.trent + "/>"
 }
-function setEnt( tile ) {
-    tile.overlay.graphicString = drawTrent;
+function addEnt( tile, entity ) {
+    tile.entities.push( entity );
     drawTiles();
 }
-function setNoEnt( tile ) {
-    tile.overlay.graphicString = function(){};
-    drawTiles();
+function removeEnt( tile, entity ) {
+	for( var i = 0; i < tile.entities.length ; i++ ) {
+		if( tile.entities[i].id == entity.id ) 
+		{
+    		tile.entities.splice(i, 1);
+    		i--;
+    	}
+    }
+	drawTiles();
+}
+function resetEntityLocs() {
+	for( var i in tiles ) {
+		for( var n in tiles[i] ) {
+			tiles[i][n].entities = [];
+		}
+	}
+	
+	drawTiles();
+}
+function updateStatus( entity ) {
+	document.getElementById("tedStatus").innerHTML = entity.stats.Name + ": " + entity.stats.CurHp + '/' + entity.stats.Hp;
 }
 
-init();
-drawTiles();
-
-tiles[0][0].overlay.graphicString = drawTrent;
-drawTiles();
-
-function doMove( msg ) {
-    setNoEnt( tiles[msg.fromx][msg.fromy]);
-    setEnt( tiles[msg.tox][msg.toy]);
+function doMove( msg, entity ) {
+	if( !entities[msg.ent] ) {
+		var smsg = new Object();
+		smsg.type = "entityRequest";
+		smsg.args = new Object();
+		smsg.args.Id = msg.ent;
+		ws.send( JSON.stringify(smsg) );
+		resetEntityLocs()
+	}else
+	{
+	    removeEnt( tiles[msg.fromx][msg.fromy], entities[msg.ent]);
+	    
+	    addEnt( tiles[msg.tox][msg.toy], entities[msg.ent]);
+   }
 }
+
+
+
+
+
+drawTiles();
+
 
 var ws;
 if ("WebSocket" in window) {
@@ -105,8 +191,12 @@ if ("WebSocket" in window) {
                         break;
                     case "status":
                         msg.item =  $.parseJSON(msg.item);
-                        if( msg.item.Name == "Ted" )
-                            document.getElementById("tedStatus").innerHTML = msg.item.Name + ": " + msg.item.CurHp + '/' + msg.item.Hp;
+                        entities[ msg.item.Id ] = factories.entity( msg.item.Id, msg.item );
+                    	if( selectedEntity  && selectedEntity.id == msg.item.Id ) {
+                        	selectedEntity = entities[ msg.item.Id ];
+                    		updateStatus(selectedEntity );
+                    	}
+                        drawTiles();
                         break;
                 }
             }

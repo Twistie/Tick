@@ -7,7 +7,7 @@ namespace Tick.typeClasses
 {
     public class Mob : Character
     {
-        public Mob( ISaveLoad saveLoad, ILogger logger, float s, float i, float h, float a, float sp, String n ) : base(saveLoad, logger, n, s, h, i, a, sp )
+        public Mob( ISaveLoad saveLoad, ILogger logger, float s, float i, float h, float a, float sp, String n ) : base(saveLoad, logger, n, s, h, i, a, sp, 0 )
         {
             Str = s;
             Intel = i;
