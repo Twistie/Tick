@@ -60,7 +60,7 @@ factories.tile = function( x, y ) {
 		}
 		if( this.tile.entities.length > 0)
 		{
-			selectedEntity = entities[this.tile.entities[0].Id];
+			selectedEntity =this.tile.entities[0];
 			updateStatus( selectedEntity );
 			controlDiv.innerHTML = "<input type='button' value='Start Route' onclick='startRoute()'/>";
 		}
